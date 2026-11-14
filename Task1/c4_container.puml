@@ -1,0 +1,81 @@
+@startuml C4_Container_Future_2_0
+!include <C4/C4_Container>
+
+LAYOUT_WITH_LEGEND()
+
+title Диаграмма контейнеров целевой архитектуры «Будущее 2.0» (Через 1 год)
+
+Person(doctor, "Врач / Оператор", "Работает с пациентами, счетами и ИИ")
+Person(client, "Клиент экосистемы", "Пользуется мед. услугами и банковскими продуктами")
+Person(analyst, "Бизнес-пользователь", "Строит отчеты в Self-Service BI")
+Person(partner, "Новые бизнесы", "Фармацевтика и производители электроники")
+
+System_Boundary(cloud, "Облачная инфраструктура «Будущее 2.0» (Yandex Cloud)") {
+
+    Container(gateway, "API Gateway & IAM", "Kong / Keycloak", "Единый вход, аутентификация (SSO) и контроль прав доступа (RBAC/ABAC)")
+
+    System_Boundary(med, "Медицинский домен (Закрытый контур)") {
+        Container(med_app, "Сервисы клиник", "Java / Go + Web UI", "Замена PowerBuilder, медкарты и запись на прием")
+        ContainerDb(med_db, "Мед. хранилище (PII/PHI)", "PostgreSQL + S3", "Медкарты, истории болезней и результаты исследований (НЕ идут в аналитику)")
+    }
+
+    System_Boundary(fintech, "Финтех-домен (Банковский контур)") {
+        Container(fin_app, "Банковские сервисы", "Golang / Java", "Счета, кредиты на лечение, платежи, биллинг")
+        ContainerDb(fin_db, "БД Финтеха", "PostgreSQL", "Финансовые транзакции и кредитные договоры")
+    }
+
+    System_Boundary(ai, "Домен ИИ-сервисов") {
+        Container(ai_app, "ИИ-диагностика и ML", "Python", "Оперативный анализ снимков для врачей и обучение моделей")
+    }
+
+    System_Boundary(analytics, "Аналитическая платформа (Data Mesh / Lakehouse)") {
+        Container(kafka, "Брокер событий", "Apache Kafka", "Асинхронный обмен событиями между доменами (замена ESB Camel)")
+        Container(airflow, "Оркестратор ETL/ELT", "Apache Airflow", "Миграция из Legacy DWH (без медкарт), наполнение Lakehouse и расчет витрин")
+        ContainerDb(datalake, "Data Lake (Холодный слой и ML)", "Yandex Object Storage (S3) + Apache Iceberg", "Сырые события, финансы, инвентарь и обезличенная телеметрия (БЕЗ медкарт и исследований)")
+        ContainerDb(dwh_new, "Аналитические витрины (Горячий слой)", "ClickHouse", "Быстрые витрины доменов для BI (БЕЗ медкарт и исследований)")
+        Container(datahub, "Каталог данных", "DataHub", "Единый каталог дата-продуктов, контроль доступа и Data Lineage")
+        Container(bi, "Портал самообслуживания", "Apache Superset", "Конструктор отчетов за секунды")
+    }
+
+    ContainerDb(legacy, "Legacy DWH (Архив)", "MS SQL 2008", "Временное хранение исторических данных до конца миграции")
+}
+
+' 1. Все пользователи и внешние системы проходят через единый шлюз безопасности
+Rel(doctor, gateway, "Авторизуется и работает в системе клиники", "HTTPS")
+Rel(client, gateway, "Оплачивает услуги, оформляет кредиты", "HTTPS")
+Rel(analyst, gateway, "Авторизуется и открывает портал отчетов", "HTTPS")
+Rel(partner, gateway, "Вызывает внешние API по токену", "HTTPS")
+
+' 2. Шлюз проверяет права (IAM) и маршрутизирует запросы
+Rel(gateway, med_app, "Маршрутизирует запросы врачей", "HTTPS / gRPC")
+Rel(gateway, fin_app, "Маршрутизирует банковские запросы", "REST / gRPC")
+Rel(gateway, bi, "Перенаправляет запросы аналитиков (SSO)", "HTTPS")
+Rel(gateway, kafka, "Публикует события партнеров (Producer)", "TCP")
+
+' 3. Взаимодействие доменов между собой и со своими БД
+Rel(med_app, med_db, "Читает и записывает медкарты и исследования", "SQL / S3")
+Rel(med_app, fin_app, "Запрашивает выставление счета / статус оплаты", "REST / gRPC")
+Rel(med_app, ai_app, "Отправляет обезличенные снимки на оперативный анализ", "gRPC")
+Rel(med_app, kafka, "Публикует обезличенные бизнес-события (визиты, склад)", "TCP")
+
+Rel(fin_app, fin_db, "Читает и записывает транзакции", "SQL")
+Rel(fin_app, kafka, "Публикует финансовые события (Producer)", "TCP")
+
+Rel(ai_app, kafka, "Вычитывает телеметрию оборудования (Consumer)", "TCP")
+Rel(ai_app, datalake, "Читает обезличенные датасеты для обучения моделей", "S3 API")
+
+' 4. Взаимодействие внутри Data Lakehouse
+Rel(dwh_new, kafka, "Вычитывает горячие события (Kafka Engine)", "TCP")
+
+Rel(airflow, kafka, "Выгружает сырые события в Data Lake", "Kafka Connect / Python")
+Rel(airflow, legacy, "Читает исторические данные (кроме медкарт и исследований)", "JDBC")
+Rel(airflow, datalake, "Сохраняет историю и формирует Iceberg-таблицы", "S3 API")
+Rel(airflow, dwh_new, "Агрегирует и загружает витрины из Data Lake", "SQL")
+Rel(airflow, datahub, "Отправляет метаданные пайплайнов (Lineage)", "REST API")
+
+Rel(bi, dwh_new, "Выполняет быстрые аналитические запросы", "SQL")
+Rel(bi, datahub, "Запрашивает метаданные и права доступа", "GraphQL")
+Rel(datahub, dwh_new, "Сканирует схемы витрин", "SQL / Ingestion")
+Rel(datahub, datalake, "Индексирует таблицы Data Lake (Iceberg)", "Metadata Ingestion")
+
+@enduml

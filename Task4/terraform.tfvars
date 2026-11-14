@@ -1,0 +1,9 @@
+yc_zone             = "ru-central1-a"
+project_prefix      = "future20"
+ssh_user            = "debian"
+ssh_public_key_path = "~/.ssh/id_rsa.pub"
+admin_cidr          = "0.0.0.0/0"
+image_family        = "debian-11"
+boot_disk_size      = 3
+data_disk_size      = 2
+bucket_suffix       = "datalake-2026-9482"
