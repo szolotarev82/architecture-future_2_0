@@ -1,0 +1,123 @@
+{
+  "basePath": "/techradar",
+  "baseUrl": "http://localhost:3000/techradar",
+  "editUrl": "",
+  "logoFile": "",
+  "jsFile": "",
+  "toggles": {
+    "showChart": true,
+    "showTagFilter": true,
+    "showQuadrantList": true,
+    "showEmptyRings": true
+  },
+  "sections": ["radar", "tags", "list"],
+  "colors": {
+    "foreground": "#fcf2e6",
+    "background": "#113521",
+    "highlight": "#d4a373",
+    "content": "#ffffff",
+    "text": "#333333",
+    "link": "#bc6c25",
+    "border": "rgba(255, 255, 255, 0.15)",
+    "tag": "rgba(255, 255, 255, 0.15)"
+  },
+  "quadrants": [
+    {
+      "id": "methods-and-patterns",
+      "title": "Методологии и архитектура",
+      "description": "Архитектурные подходы для независимого развития доменов и безопасности.",
+      "color": "#a3b18a"
+    },
+    {
+      "id": "data-platform-and-bi",
+      "title": "Платформа данных и BI",
+      "description": "Хранилища, оркестрация, каталогизация и портал самообслуживания.",
+      "color": "#588157"
+    },
+    {
+      "id": "integration-and-security",
+      "title": "Интеграция и безопасность",
+      "description": "Событийная шина, шлюзы, IAM и протоколы для подключения партнёров.",
+      "color": "#3f633e"
+    },
+    {
+      "id": "languages-and-services",
+      "title": "Языки, фреймворки и легаси",
+      "description": "Стек разработки сервисов, ИИ-платформы и вывод устаревших систем.",
+      "color": "#40713f"
+    }
+  ],
+  "rings": [
+    {
+      "id": "adopt",
+      "title": "Adopt (Внедряем)",
+      "description": "Целевой стек экосистемы «Будущее 2.0»",
+      "color": "#588157",
+      "radius": 0.5,
+      "strokeWidth": 5
+    },
+    {
+      "id": "trial",
+      "title": "Trial (Пилотируем)",
+      "description": "Поэтапный ввод на отдельных доменах",
+      "color": "#457b9d",
+      "radius": 0.69,
+      "strokeWidth": 3
+    },
+    {
+      "id": "assess",
+      "title": "Assess (Изучаем)",
+      "description": "Перспективные технологии для новых партнёров",
+      "color": "#bc6c25",
+      "radius": 0.85,
+      "strokeWidth": 2
+    },
+    {
+      "id": "hold",
+      "title": "Hold (Выводим)",
+      "description": "Легаси-системы, замороженные для развития",
+      "color": "#d62828",
+      "radius": 1,
+      "strokeWidth": 0.75
+    }
+  ],
+  "flags": {
+    "new": {
+      "color": "#f1235a",
+      "title": "Новое",
+      "titleShort": "N",
+      "description": "Новое в целевой архитектуре"
+    },
+    "changed": {
+      "color": "#40a7d1",
+      "title": "Изменено",
+      "titleShort": "C",
+      "description": "Изменение статуса технологии"
+    },
+    "default": {
+      "description": "Без изменений"
+    }
+  },
+  "chart": {
+    "size": 800,
+    "blipSize": 12
+  },
+  "social": [],
+  "imprint": "",
+  "labels": {
+    "title": "Технологический радар «Будущее 2.0»",
+    "imprint": "",
+    "quadrant": "Технические области",
+    "quadrantOverview": "Подробнее",
+    "zoomIn": "Приблизить",
+    "filterByTag": "Отфильтровать по тегу",
+    "footer": "Технический радар трансформации компании «Будущее 2.0»",
+    "notUpdated": "Давно не менялось",
+    "notFound": "404",
+    "pageAbout": "О радаре",
+    "pageOverview": "Обзор технологий",
+    "pageSearch": "Поиск",
+    "searchPlaceholder": "Что ищете?",
+    "metaDescription": "Технологический радар компании Будущее 2.0"
+  }
+}
